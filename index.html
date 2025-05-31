@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Mercado</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+        header, footer { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between; }
+        header h1 { margin: 0; font-size: 18px; }
+        .counter { font-size: 16px; }
+        .filter { padding: 5px; font-size: 16px; }
+        .list { padding: 10px; }
+        .item { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px; margin-bottom: 5px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .item span { flex-grow: 1; margin-left: 8px; }
+        .buy { width: 20px; height: 20px; border: 2px solid #555; border-radius: 4px; background: white; cursor: pointer; }
+        .buy.checked { background: red; }
+        .delete { cursor: pointer; margin-left: 20px; }
+        footer input { flex-grow: 1; padding: 6px; border: 1px solid #ccc; border-radius: 6px; }
+        footer button { margin-left: 6px; padding: 6px 10px; border: none; background: #555; color: white; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Lista de Compras</h1>
+    <div class="counter">Itens: <span id="itemCount">0</span></div>
+</header>
+
+<div style="padding: 10px;">
+    <select class="filter" id="filter" onchange="applyFilter()">
+        <option value="all">Todos os Itens</option>
+        <option value="toBuy">Itens a Comprar</option>
+        <option value="notSelected">Itens Não Selecionados</option>
+    </select>
+</div>
+
+<div class="list" id="list"></div>
+
+<footer>
+    <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
+    <button onclick="saveBackup()">Salvar</button>
+    <button onclick="loadBackup()">Abrir</button>
+</footer>
+
+<script>
+    let items = [
+        "Pão Amanda", "Pão Nando", "Iogurte Amanda", "Iogurte Nando", "Uva", "Ovo",
+        "Mamão", "Banana", "Leite", "Maçã", "Tomate", "Alface", "Rap10", "Manteiga",
+        "Requeijão Cremoso", "Queijo Prato", "Queijo Muçarela"
+    ].map(name => ({ name, buy: false }));
+
+    function render() {
+        const list = document.getElementById('list');
+        const filter = document.getElementById('filter').value;
+        list.innerHTML = '';
+
+        const filtered = items
+            .filter(i => filter === 'all' || (filter === 'toBuy' && i.buy) || (filter === 'notSelected' && !i.buy))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        document.getElementById('itemCount').innerText = filtered.length;
+
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'item';
+
+            const buy = document.createElement('div');
+            buy.className = 'buy' + (item.buy ? ' checked' : '');
+            buy.onclick = () => { item.buy = !item.buy; render(); };
+
+            const span = document.createElement('span');
+            span.innerText = item.name;
+
+            const del = document.createElement('div');
+            del.className = 'delete';
+            del.innerHTML = '🗑️';
+            del.onclick = () => {
+                if (confirm(`Deletar "${item.name}"?`)) {
+                    items = items.filter(i => i !== item);
+                    render();
+                }
+            };
+
+            div.appendChild(buy);
+            div.appendChild(span);
+            div.appendChild(del);
+            list.appendChild(div);
+        });
+    }
+
+    function handleKey(e) {
+        if (e.key === 'Enter') {
+            const value = e.target.value.trim();
+            if (value) {
+                items.push({ name: value, buy: false });
+                e.target.value = '';
+                render();
+            }
+        }
+    }
+
+    function applyFilter() {
+        render();
+    }
+
+    function saveBackup() {
+        const data = JSON.stringify(items);
+        localStorage.setItem('listaMercadoBackup', data);
+        alert('Backup salvo');
+    }
+
+    function loadBackup() {
+        const data = localStorage.getItem('listaMercadoBackup');
+        if (data) {
+            items = JSON.parse(data);
+            render();
+        } else {
+            alert('Nenhum backup encontrado');
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
