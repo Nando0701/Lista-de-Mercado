@@ -44,11 +44,14 @@
 </footer>
 
 <script>
-    let items = [
-        "Pão Amanda", "Pão Nando", "Iogurte Amanda", "Iogurte Nando", "Uva", "Ovo",
-        "Mamão", "Banana", "Leite", "Maçã", "Tomate", "Alface", "Rap10", "Manteiga",
-        "Requeijão Cremoso", "Queijo Prato", "Queijo Muçarela"
-    ].map(name => ({ name, buy: false }));
+    let items = [];
+
+    const saved = localStorage.getItem('listaMercadoBackup');
+    if (saved) {
+        items = JSON.parse(saved);
+    } else {
+        items = [];
+    }
 
     function render() {
         const list = document.getElementById('list');
@@ -68,7 +71,7 @@
 
             const buy = document.createElement('div');
             buy.className = 'buy' + (item.buy ? ' checked' : '');
-            buy.onclick = () => { item.buy = !item.buy; render(); };
+            buy.onclick = () => { item.buy = !item.buy; saveToLocal(); render(); };
 
             const span = document.createElement('span');
             span.innerText = item.name;
@@ -79,6 +82,7 @@
             del.onclick = () => {
                 if (confirm(`Deletar "${item.name}"?`)) {
                     items = items.filter(i => i !== item);
+                    saveToLocal();
                     render();
                 }
             };
@@ -96,6 +100,7 @@
             if (value) {
                 items.push({ name: value, buy: false });
                 e.target.value = '';
+                saveToLocal();
                 render();
             }
         }
@@ -115,10 +120,15 @@
         const data = localStorage.getItem('listaMercadoBackup');
         if (data) {
             items = JSON.parse(data);
+            saveToLocal();
             render();
         } else {
             alert('Nenhum backup encontrado');
         }
+    }
+
+    function saveToLocal() {
+        localStorage.setItem('listaMercadoBackup', JSON.stringify(items));
     }
 
     render();
