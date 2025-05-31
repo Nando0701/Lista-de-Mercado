@@ -39,18 +39,29 @@
 
 <footer>
     <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
-    <button onclick="saveBackup()">Salvar</button>
-    <button onclick="loadBackup()">Abrir</button>
+    <button onclick="exportBackup()">Exportar Backup</button>
+    <button onclick="importBackup()">Importar Backup</button>
 </footer>
 
 <script>
     let items = [];
 
-    const saved = localStorage.getItem('listaMercadoBackup');
-    if (saved) {
-        items = JSON.parse(saved);
-    } else {
-        items = [];
+    function saveToStorage() {
+        localStorage.setItem('listaMercado', JSON.stringify(items));
+    }
+
+    function loadFromStorage() {
+        const data = localStorage.getItem('listaMercado');
+        if (data) {
+            try {
+                const parsed = JSON.parse(data);
+                if (Array.isArray(parsed)) {
+                    items = parsed;
+                }
+            } catch {
+                items = [];
+            }
+        }
     }
 
     function render() {
@@ -71,7 +82,7 @@
 
             const buy = document.createElement('div');
             buy.className = 'buy' + (item.buy ? ' checked' : '');
-            buy.onclick = () => { item.buy = !item.buy; saveToLocal(); render(); };
+            buy.onclick = () => { item.buy = !item.buy; saveToStorage(); render(); };
 
             const span = document.createElement('span');
             span.innerText = item.name;
@@ -82,7 +93,7 @@
             del.onclick = () => {
                 if (confirm(`Deletar "${item.name}"?`)) {
                     items = items.filter(i => i !== item);
-                    saveToLocal();
+                    saveToStorage();
                     render();
                 }
             };
@@ -100,7 +111,7 @@
             if (value) {
                 items.push({ name: value, buy: false });
                 e.target.value = '';
-                saveToLocal();
+                saveToStorage();
                 render();
             }
         }
@@ -110,27 +121,51 @@
         render();
     }
 
-    function saveBackup() {
-        const data = JSON.stringify(items);
-        localStorage.setItem('listaMercadoBackup', data);
-        alert('Backup salvo');
+    function exportBackup() {
+        const data = JSON.stringify(items, null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'lista-mercado-backup.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
-    function loadBackup() {
-        const data = localStorage.getItem('listaMercadoBackup');
-        if (data) {
-            items = JSON.parse(data);
-            saveToLocal();
-            render();
-        } else {
-            alert('Nenhum backup encontrado');
-        }
+    function importBackup() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (Array.isArray(data) && data.every(item => item.name && typeof item.buy === 'boolean')) {
+                        items = data;
+                        saveToStorage();
+                        render();
+                    } else {
+                        alert('Arquivo inválido.');
+                    }
+                } catch {
+                    alert('Erro ao ler o arquivo.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        input.click();
     }
 
-    function saveToLocal() {
-        localStorage.setItem('listaMercadoBackup', JSON.stringify(items));
-    }
-
+    loadFromStorage();
     render();
 </script>
 
