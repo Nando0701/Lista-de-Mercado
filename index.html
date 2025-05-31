@@ -24,7 +24,7 @@
 
 <header>
     <h1>Lista de Compras</h1>
-    <div class="counter">Itens: <span id="itemCount">0</span></div>
+    <div class="counter">Selecionados: <span id="itemCount">0</span></div>
 </header>
 
 <div style="padding: 10px;">
@@ -59,7 +59,8 @@
             .filter(i => filter === 'all' || (filter === 'toBuy' && i.buy) || (filter === 'notSelected' && !i.buy))
             .sort((a, b) => a.name.localeCompare(b.name));
 
-        document.getElementById('itemCount').innerText = filtered.length;
+        const selectedCount = items.filter(i => i.buy).length;
+        document.getElementById('itemCount').innerText = selectedCount;
 
         filtered.forEach(item => {
             const div = document.createElement('div');
