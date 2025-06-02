@@ -20,12 +20,10 @@
         footer { background: #fff; padding: 10px; border-top: 1px solid #ccc; box-sizing: border-box; }
         .input-area { display: flex; width: 100%; }
         .input-area input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; width: 100%; }
-        .button-area { display: flex; gap: 10px; margin-top: 8px; }
-        .button-area button { flex: 1; padding: 8px; border: none; background: #555; color: white; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        .backup-area { display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end; }
+        .backup-area button { padding: 4px 8px; border: none; background: #ccc; color: #333; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
-        @media (max-width: 500px) {
-            .button-area { flex-direction: column; }
-        }
+        .backup-area button:hover { background: #bbb; }
     </style>
 </head>
 <body>
@@ -49,9 +47,9 @@
     <div class="input-area">
         <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
     </div>
-    <div class="button-area">
-        <button onclick="exportBackup()">Exportar Backup</button>
-        <button onclick="importBackup()">Importar Backup</button>
+    <div class="backup-area">
+        <button onclick="exportBackup()">Exportar</button>
+        <button onclick="importBackup()">Importar</button>
     </div>
 </footer>
 
