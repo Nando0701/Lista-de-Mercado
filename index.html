@@ -5,25 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Mercado</title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-        header { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between; }
+        * { box-sizing: border-box; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; height: 100vh; display: flex; flex-direction: column; }
+
+        header {
+            background: #fff;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
         header h1 { margin: 0; font-size: 18px; }
         .counter { font-size: 16px; }
-        .filter { padding: 5px; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .list { padding: 10px; }
-        .item { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px; margin-bottom: 5px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .item span { flex-grow: 1; margin-left: 8px; }
-        .buy { width: 20px; height: 20px; border: 2px solid #555; border-radius: 4px; background: white; cursor: pointer; }
-        .buy.checked { background: red; }
-        .delete { cursor: pointer; margin-left: 20px; }
 
-        footer { background: #fff; padding: 10px; border-top: 1px solid #ccc; box-sizing: border-box; }
-        .input-area { display: flex; width: 100%; }
-        .input-area input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; width: 100%; }
-        .backup-area { display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end; }
-        .backup-area button { padding: 4px 8px; border: none; background: #ccc; color: #333; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .filter-container {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-bottom: 1px solid #ccc;
+            padding: 6px 10px;
+            z-index: 9;
+        }
+        .filter {
+            padding: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
 
-        .backup-area button:hover { background: #bbb; }
+        .list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 120px 10px 90px 10px;
+        }
+
+        .item {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .item span {
+            flex-grow: 1;
+            margin-left: 8px;
+        }
+        .buy {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #555;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .buy.checked {
+            background: red;
+        }
+        .delete {
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        footer {
+            background: #fff;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .input-area {
+            display: flex;
+            width: 100%;
+        }
+        .input-area input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .backup-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+            justify-content: flex-end;
+        }
+        .backup-area button {
+            padding: 4px 8px;
+            border: none;
+            background: #ccc;
+            color: #333;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .backup-area button:hover {
+            background: #bbb;
+        }
     </style>
 </head>
 <body>
@@ -33,7 +126,7 @@
     <div class="counter">Selecionados: <span id="itemCount">0</span></div>
 </header>
 
-<div style="padding: 10px;">
+<div class="filter-container">
     <select class="filter" id="filter" onchange="applyFilter()">
         <option value="all">Todos os Itens</option>
         <option value="toBuy">Itens a Comprar</option>
