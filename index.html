@@ -6,18 +6,26 @@
     <title>Lista de Mercado</title>
     <style>
         body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-        header, footer { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between; }
+        header { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between; }
         header h1 { margin: 0; font-size: 18px; }
         .counter { font-size: 16px; }
-        .filter { padding: 5px; font-size: 16px; }
+        .filter { padding: 5px; font-size: 16px; width: 100%; box-sizing: border-box; }
         .list { padding: 10px; }
         .item { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px; margin-bottom: 5px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .item span { flex-grow: 1; margin-left: 8px; }
         .buy { width: 20px; height: 20px; border: 2px solid #555; border-radius: 4px; background: white; cursor: pointer; }
         .buy.checked { background: red; }
         .delete { cursor: pointer; margin-left: 20px; }
-        footer input { flex-grow: 1; padding: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        footer button { margin-left: 6px; padding: 6px 10px; border: none; background: #555; color: white; border-radius: 6px; cursor: pointer; font-size: 16px; }
+
+        footer { background: #fff; padding: 10px; border-top: 1px solid #ccc; box-sizing: border-box; }
+        .input-area { display: flex; width: 100%; }
+        .input-area input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; width: 100%; }
+        .button-area { display: flex; gap: 10px; margin-top: 8px; }
+        .button-area button { flex: 1; padding: 8px; border: none; background: #555; color: white; border-radius: 8px; cursor: pointer; font-size: 16px; }
+
+        @media (max-width: 500px) {
+            .button-area { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -38,9 +46,13 @@
 <div class="list" id="list"></div>
 
 <footer>
-    <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
-    <button onclick="exportBackup()">Exportar Backup</button>
-    <button onclick="importBackup()">Importar Backup</button>
+    <div class="input-area">
+        <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
+    </div>
+    <div class="button-area">
+        <button onclick="exportBackup()">Exportar Backup</button>
+        <button onclick="importBackup()">Importar Backup</button>
+    </div>
 </footer>
 
 <script>
