@@ -2,148 +2,104 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Lista de Mercado</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; height: 100vh; display: flex; flex-direction: column; }
-
-        header {
-            background: #fff;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            top: 0;
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+        header, footer { 
+            background: #fff; 
+            padding: 10px; 
+            border-bottom: 1px solid #ccc; 
+            display: flex; 
+            flex-direction: column;
+            align-items: stretch;
+            position: sticky;
             left: 0;
             right: 0;
             z-index: 10;
         }
-        header h1 { margin: 0; font-size: 18px; }
+        header { top: 0; }
+        footer { bottom: 0; border-top: 1px solid #ccc; border-bottom: none; }
+
+        header h1 { margin: 0; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
         .counter { font-size: 16px; }
 
-        .filter-container {
-            position: fixed;
-            top: 50px;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border-bottom: 1px solid #ccc;
-            padding: 6px 10px;
-            z-index: 9;
-        }
-        .filter {
-            padding: 5px;
-            font-size: 16px;
-            width: 100%;
-        }
+        .filter { padding: 5px; font-size: 16px; width: 100%; margin-top: 5px; }
 
-        .list {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 120px 10px 90px 10px;
-        }
+        .list { padding: 10px; padding-bottom: 100px; } /* espaço pro rodapé */
 
-        .item {
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .item { 
+            background: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px; 
+            margin-bottom: 5px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
         }
-        .item span {
-            flex-grow: 1;
-            margin-left: 8px;
+        .item span { flex-grow: 1; margin-left: 8px; }
+        .buy { 
+            width: 20px; 
+            height: 20px; 
+            border: 2px solid #555; 
+            border-radius: 4px; 
+            background: white; 
+            cursor: pointer; 
         }
-        .buy {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #555;
-            border-radius: 4px;
-            background: white;
+        .buy.checked { background: red; }
+        .delete { cursor: pointer; margin-left: 20px; }
+
+        footer input { 
+            width: 100%; 
+            padding: 6px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            margin-bottom: 6px; 
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: flex; 
+            gap: 6px;
+        }
+        .buttons button {
+            flex: 1; 
+            padding: 6px; 
+            border: none; 
+            background: #555; 
+            color: white; 
+            border-radius: 6px; 
             cursor: pointer;
+            font-size: 14px;
         }
-        .buy.checked {
-            background: red;
-        }
-        .delete {
-            cursor: pointer;
-            margin-left: 20px;
-        }
-
-        footer {
-            background: #fff;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-
-        .input-area {
-            display: flex;
-            width: 100%;
-        }
-        .input-area input {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        .backup-area {
-            display: flex;
-            gap: 8px;
-            margin-top: 6px;
-            justify-content: flex-end;
-        }
-        .backup-area button {
-            padding: 4px 8px;
-            border: none;
-            background: #ccc;
-            color: #333;
-            border-radius: 6px;
-            cursor: pointer;
+        .note {
+            margin-top: 4px;
             font-size: 12px;
-        }
-        .backup-area button:hover {
-            background: #bbb;
+            color: #666;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Lista de Compras</h1>
-    <div class="counter">Selecionados: <span id="itemCount">0</span></div>
-</header>
-
-<div class="filter-container">
+    <h1>Lista de Compras <span class="counter">Selecionados: <span id="itemCount">0</span></span></h1>
     <select class="filter" id="filter" onchange="applyFilter()">
         <option value="all">Todos os Itens</option>
         <option value="toBuy">Itens a Comprar</option>
         <option value="notSelected">Itens Não Selecionados</option>
     </select>
-</div>
+</header>
 
 <div class="list" id="list"></div>
 
 <footer>
-    <div class="input-area">
-        <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
+    <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
+    <div class="buttons">
+        <button onclick="exportBackup()">Exportar Backup</button>
+        <button onclick="importBackup()">Importar Backup</button>
     </div>
-    <div class="backup-area">
-        <button onclick="exportBackup()">Exportar</button>
-        <button onclick="importBackup()">Importar</button>
-    </div>
+    <div class="note">🔹 Backup manual: salve no app Arquivos e recupere quando quiser.</div>
 </footer>
 
 <script>
