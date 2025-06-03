@@ -1,186 +1,17 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Lista de Mercado</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-        header, footer { 
-            background: #fff; 
-            padding: 10px; 
-            border-bottom: 1px solid #ccc; 
-            display: flex; 
-            flex-direction: column;
-            align-items: stretch;
-            position: sticky;
-            left: 0;
-            right: 0;
-            z-index: 10;
-        }
-        header { top: 0; }
-        footer { bottom: 0; border-top: 1px solid #ccc; border-bottom: none; }
-
-        header h1 { margin: 0; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
-        .counter { font-size: 16px; }
-
-        .filter { padding: 5px; font-size: 16px; width: 100%; margin-top: 5px; }
-
-        .list { padding: 10px; padding-bottom: 100px; } /* espaço pro rodapé */
-
-        .item { 
-            background: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 8px; 
-            margin-bottom: 5px; 
-            border-radius: 8px; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
-        }
-        .item span { flex-grow: 1; margin-left: 8px; }
-        .buy { 
-            width: 20px; 
-            height: 20px; 
-            border: 2px solid #555; 
-            border-radius: 4px; 
-            background: white; 
-            cursor: pointer; 
-        }
-        .buy.checked { background: red; }
-        .delete { cursor: pointer; margin-left: 20px; }
-
-        footer input { 
-            width: 100%; 
-            padding: 6px; 
-            border: 1px solid #ccc; 
-            border-radius: 6px; 
-            margin-bottom: 6px; 
-            box-sizing: border-box;
-        }
-        .buttons {
-            display: flex; 
-            gap: 6px;
-        }
-        .buttons button {
-            flex: 1; 
-            padding: 6px; 
-            border: none; 
-            background: #555; 
-            color: white; 
-            border-radius: 6px; 
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .note {
-            margin-top: 4px;
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>Lista de Compras <span class="counter">Selecionados: <span id="itemCount">0</span></span></h1>
-    <select class="filter" id="filter" onchange="applyFilter()">
-        <option value="all">Todos os Itens</option>
-        <option value="toBuy">Itens a Comprar</option>
-        <option value="notSelected">Itens Não Selecionados</option>
-    </select>
-</header>
-
-<div class="list" id="list"></div>
-
 <footer>
     <input type="text" id="newItem" placeholder="Adicionar item" onkeypress="handleKey(event)">
-    <div class="buttons">
-        <button onclick="exportBackup()">Exportar Backup</button>
-        <button onclick="importBackup()">Importar Backup</button>
+    <div style="display: flex; gap: 6px; margin-top: 6px;">
+        <button style="flex:1;" onclick="exportBackup()">Exportar Backup</button>
+        <button style="flex:1;" onclick="importBackup()">Importar Backup</button>
     </div>
-    <div class="note">🔹 Backup manual: salve no app Arquivos e recupere quando quiser.</div>
+    <div style="font-size: 12px; color: #555; margin-top: 4px;">
+        Para salvar o backup, escolha <b>“Salvar em Arquivos”</b> e selecione a pasta no seu iPhone.
+    </div>
 </footer>
 
 <script>
-    let items = [];
-
-    function saveToStorage() {
-        localStorage.setItem('listaMercado', JSON.stringify(items));
-    }
-
-    function loadFromStorage() {
-        const data = localStorage.getItem('listaMercado');
-        if (data) {
-            try {
-                const parsed = JSON.parse(data);
-                if (Array.isArray(parsed)) {
-                    items = parsed;
-                }
-            } catch {
-                items = [];
-            }
-        }
-    }
-
-    function render() {
-        const list = document.getElementById('list');
-        const filter = document.getElementById('filter').value;
-        list.innerHTML = '';
-
-        const filtered = items
-            .filter(i => filter === 'all' || (filter === 'toBuy' && i.buy) || (filter === 'notSelected' && !i.buy))
-            .sort((a, b) => a.name.localeCompare(b.name));
-
-        const selectedCount = items.filter(i => i.buy).length;
-        document.getElementById('itemCount').innerText = selectedCount;
-
-        filtered.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item';
-
-            const buy = document.createElement('div');
-            buy.className = 'buy' + (item.buy ? ' checked' : '');
-            buy.onclick = () => { item.buy = !item.buy; saveToStorage(); render(); };
-
-            const span = document.createElement('span');
-            span.innerText = item.name;
-
-            const del = document.createElement('div');
-            del.className = 'delete';
-            del.innerHTML = '🗑️';
-            del.onclick = () => {
-                if (confirm(`Deletar "${item.name}"?`)) {
-                    items = items.filter(i => i !== item);
-                    saveToStorage();
-                    render();
-                }
-            };
-
-            div.appendChild(buy);
-            div.appendChild(span);
-            div.appendChild(del);
-            list.appendChild(div);
-        });
-    }
-
-    function handleKey(e) {
-        if (e.key === 'Enter') {
-            const value = e.target.value.trim();
-            if (value) {
-                items.push({ name: value, buy: false });
-                e.target.value = '';
-                saveToStorage();
-                render();
-            }
-        }
-    }
-
-    function applyFilter() {
-        render();
-    }
-
-    function exportBackup() {
+function exportBackup() {
+    if (confirm("Deseja fazer backup da sua lista de mercado?")) {
         const data = JSON.stringify(items, null, 2);
         const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -193,40 +24,35 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+}
 
-    function importBackup() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'application/json';
+function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
 
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    if (Array.isArray(data) && data.every(item => item.name && typeof item.buy === 'boolean')) {
-                        items = data;
-                        saveToStorage();
-                        render();
-                    } else {
-                        alert('Arquivo inválido.');
-                    }
-                } catch {
-                    alert('Erro ao ler o arquivo.');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (Array.isArray(data) && data.every(item => item.name && typeof item.buy === 'boolean')) {
+                    items = data;
+                    saveToStorage();
+                    render();
+                } else {
+                    alert('Arquivo inválido.');
                 }
-            };
-            reader.readAsText(file);
+            } catch {
+                alert('Erro ao ler o arquivo.');
+            }
         };
+        reader.readAsText(file);
+    };
 
-        input.click();
-    }
-
-    loadFromStorage();
-    render();
+    input.click();
+}
 </script>
-
-</body>
-</html>
